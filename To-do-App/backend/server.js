@@ -25,7 +25,7 @@ app.use(
 
 if (!process.env.FRONTEND_BASE_URL) {
   console.warn(
-    "[CORS] FRONTEND_BASE_URL not set — falling back to http://localhost:5173"
+    "[CORS] FRONTEND_BASE_URL not set — falling back to https://mern-task-manager-app-main.onrender.com"
   );
 }
 
