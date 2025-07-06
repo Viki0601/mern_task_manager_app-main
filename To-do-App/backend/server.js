@@ -9,7 +9,7 @@ import cors from "cors";
 const app = express();
 const PORT   = process.env.PORT || 5000;        
 const SECRET = process.env.COOKIE_SECRET || "dev_secret";
-const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || "http://localhost:5173";
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || "https://mern-task-manager-app-main.onrender.com";
 
 
 app.use(express.json());
