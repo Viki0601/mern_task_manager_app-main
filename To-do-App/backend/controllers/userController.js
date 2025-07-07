@@ -6,18 +6,21 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 
 const domain =
-  process.env.NODE_ENV === "production" ? "taskmanger-server-qg2o.onrender.com" : "localhost";
+  process.env.NODE_ENV === "production"
+    ? "taskmanger-server-qg2o.onrender.com"
+    : "localhost";
 
+// ========== Signup ==========
 const signupUser = asyncHandler(async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
 
-  if (!userModel || !firstname || !lastname || !email || !password) {
+  if (!firstname || !lastname || !email || !password) {
     throw new Error("Please fill all the fields");
   }
 
   const existUser = await userModel.findOne({ email });
   if (existUser) {
-    return res.status(400).send("User already exists");
+    return res.status(400).json({ message: "User already exists" });
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -41,12 +44,11 @@ const signupUser = asyncHandler(async (req, res) => {
       email: newUser.email,
     });
   } catch (error) {
-    res.status(400);
-    throw new Error("Invalid user data");
+    res.status(400).json({ message: "Invalid user data" });
   }
 });
 
-
+// ========== Login ==========
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const existingUser = await userModel.findOne({ email });
@@ -69,30 +71,29 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-
+// ========== Logout ==========
 const logoutUser = asyncHandler(async (req, res) => {
   res.cookie("jwt", "", {
     httpOnly: true,
     expires: new Date(0),
   });
-
   res.status(200).json({ message: "Logged out successfully" });
 });
 
-
+// ========== Google OAuth ==========
 const google = asyncHandler(async (req, res) => {
   const { name, email, googlePhotoUrl } = req.body;
 
   if (!name || !email) {
-    return res.status(400).json({ message: "Missing name or email" }); // ✅ return JSON error
+    return res.status(400).json({ message: "Missing name or email" });
   }
 
   try {
     let user = await userModel.findOne({ email });
 
     if (!user) {
-      const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-      const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+      const randomPassword = `${Math.random().toString(36).slice(-8)}${Math.random().toString(36).slice(-8)}`;
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       user = await userModel.create({
         firstname: name,
@@ -113,19 +114,19 @@ const google = asyncHandler(async (req, res) => {
       .status(200)
       .cookie("jwt", token, {
         httpOnly: true,
-        secure: true,
-        sameSite: "None",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
         maxAge: 24 * 60 * 60 * 1000,
         signed: true,
       })
-      .json(userData); // ✅ Always return JSON
+      .json(userData);
   } catch (error) {
     console.error("Google login error:", error.message);
-    return res.status(500).json({ message: "Internal Server Error" }); // ✅ send fallback error
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-
+// ========== Forgot Password ==========
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -155,6 +156,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Failed to send the link" });
   }
 });
+
+// ========== Reset Password ==========
 const resetPassword = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -168,7 +171,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Password updated successfully" });
 });
 
-
+// ========== Exports ==========
 export {
   signupUser,
   loginUser,
