@@ -85,13 +85,14 @@ const google = asyncHandler(async (req, res) => {
 
   try {
     const user = await userModel.findOne({ email });
+
     if (user) {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
         expiresIn: "1d",
       });
 
       const { password, ...rest } = user._doc;
-      res
+      return res
         .status(200)
         .cookie("jwt", token, {
           httpOnly: true,
@@ -102,7 +103,7 @@ const google = asyncHandler(async (req, res) => {
           sameSite: "None",
           maxAge: 1 * 24 * 60 * 60 * 1000,
         })
-        .json(rest);
+        .json(rest); // ✅ always send JSON
     } else {
       const generatedPassword =
         Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
@@ -124,7 +125,7 @@ const google = asyncHandler(async (req, res) => {
 
       const { password, ...rest } = newUser._doc;
 
-      res
+      return res
         .status(200)
         .cookie("jwt", token, {
           httpOnly: true,
@@ -135,10 +136,11 @@ const google = asyncHandler(async (req, res) => {
           sameSite: "None",
           maxAge: 1 * 24 * 60 * 60 * 1000,
         })
-        .json(rest);
+        .json(rest); // ✅ always send JSON
     }
   } catch (error) {
-    throw new Error(error.message);
+    console.error("Google login error:", error);
+    return res.status(500).json({ message: "Google login failed" });
   }
 });
 
