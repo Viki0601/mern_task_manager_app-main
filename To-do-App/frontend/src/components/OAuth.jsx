@@ -19,6 +19,7 @@ const OAuth = ({ title }) => {
     provider.setCustomParameters({ prompt: "select_account" });
 
     try {
+      // Step 1: Google sign-in popup
       const resultsFromGoogle = await signInWithPopup(auth, provider);
       const user = resultsFromGoogle?.user;
 
@@ -27,11 +28,13 @@ const OAuth = ({ title }) => {
         return;
       }
 
+      // Step 2: Send user info to your backend for auth
       const res = await fetch(`${baseUrl}/api/v1/user/google`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // ✅ important for sending cookies
         body: JSON.stringify({
           name: user.displayName,
           email: user.email,
@@ -39,6 +42,7 @@ const OAuth = ({ title }) => {
         }),
       });
 
+      // Step 3: Safely handle backend response
       let data;
       try {
         data = await res.json();
@@ -53,6 +57,7 @@ const OAuth = ({ title }) => {
         return;
       }
 
+      // Step 4: Save user in Redux & localStorage
       dispatch(setCredentials(data));
       toast.success("Login successful");
       navigate("/");
