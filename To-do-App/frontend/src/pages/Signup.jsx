@@ -47,14 +47,19 @@ function Signup() {
 
   const signup = async (formData) => {
     try {
-      const { data } = await axios.post(`${baseURL}/api/v1/user/signup`, formData);
+      const { data } = await axios.post(`${baseURL}/api/v1/user/signup`, formData, {
+        withCredentials: true, // ✅ needed for sending cookies in deployment
+      });
+
       dispatch(setCredentials(data));
       toast.success("Signup successful");
-      navigate("/");
+      navigate("/"); // ✅ redirect after signup
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "An error occurred during signup"
-      );
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "An error occurred during signup";
+      toast.error(message);
     }
   };
 
@@ -64,35 +69,47 @@ function Signup() {
         <h2 className="text-2xl font-bold m-2 text-blue-600">Signup</h2>
         <div className="border border-blue-600 rounded-md">
           <form onSubmit={handleSubmit(signup)}>
-            <div className="p-4">
-              <Input placeholder="First Name" {...register("firstname")} />
-              {errors.firstname && (
-                <p className="text-red-500">{errors.firstname.message}</p>
-              )}
-              <Input placeholder="Last Name" {...register("lastname")} />
-              {errors.lastname && (
-                <p className="text-red-500">{errors.lastname.message}</p>
-              )}
-              <Input placeholder="Email" type="email" {...register("email")} />
-              {errors.email && (
-                <p className="text-red-500">{errors.email.message}</p>
-              )}
-              <Input
-                type="password"
-                placeholder="Password"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-red-500">{errors.password.message}</p>
-              )}
-              <Input
-                type="password"
-                placeholder="Confirm Password"
-                {...register("confirmPassword")}
-              />
-              {errors.confirmPassword && (
-                <p className="text-red-500">{errors.confirmPassword.message}</p>
-              )}
+            <div className="p-4 space-y-4">
+              <div>
+                <Input placeholder="First Name" {...register("firstname")} />
+                {errors.firstname && (
+                  <p className="text-red-500">{errors.firstname.message}</p>
+                )}
+              </div>
+              <div>
+                <Input placeholder="Last Name" {...register("lastname")} />
+                {errors.lastname && (
+                  <p className="text-red-500">{errors.lastname.message}</p>
+                )}
+              </div>
+              <div>
+                <Input placeholder="Email" type="email" {...register("email")} />
+                {errors.email && (
+                  <p className="text-red-500">{errors.email.message}</p>
+                )}
+              </div>
+              <div>
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  {...register("password")}
+                />
+                {errors.password && (
+                  <p className="text-red-500">{errors.password.message}</p>
+                )}
+              </div>
+              <div>
+                <Input
+                  type="password"
+                  placeholder="Confirm Password"
+                  {...register("confirmPassword")}
+                />
+                {errors.confirmPassword && (
+                  <p className="text-red-500">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
               <Button
                 textColor="text-white"
                 type="submit"
