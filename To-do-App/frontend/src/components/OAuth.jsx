@@ -33,6 +33,7 @@ const OAuth = ({ title }) => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // ✅ Important for secure cookies
         body: JSON.stringify({
           name: user.displayName,
           email: user.email,
@@ -40,12 +41,14 @@ const OAuth = ({ title }) => {
         }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        toast.error(data?.message || "Failed to authenticate with backend");
+        const errorText = await res.text(); // fallback to text if JSON fails
+        console.error("Backend error:", errorText);
+        toast.error("Google login failed: " + errorText);
         return;
       }
+
+      const data = await res.json();
 
       // ✅ Save to Redux and localStorage
       dispatch(setCredentials(data));
