@@ -19,6 +19,7 @@ const OAuth = ({ title }) => {
     provider.setCustomParameters({ prompt: "select_account" });
 
     try {
+      // Step 1: Google sign-in popup
       const resultsFromGoogle = await signInWithPopup(auth, provider);
       const user = resultsFromGoogle?.user;
 
@@ -27,12 +28,13 @@ const OAuth = ({ title }) => {
         return;
       }
 
-      // 🔁 Send user info to your backend
+      // Step 2: Send user info to your backend
       const res = await fetch(`${baseUrl}/api/v1/user/google`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // ✅ cookies for session
         body: JSON.stringify({
           name: user.displayName,
           email: user.email,
@@ -40,20 +42,28 @@ const OAuth = ({ title }) => {
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data?.message || "Failed to authenticate with backend");
+      let data;
+      const text = await res.text(); // <-- avoid direct .json()
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (err) {
+        console.error("❌ Invalid JSON from backend:", err);
+        toast.error("Server error: Invalid response format");
         return;
       }
 
-      // ✅ Save to Redux and localStorage
+      if (!res.ok) {
+        toast.error(data?.message || "Google login failed");
+        return;
+      }
+
+      // Step 3: Update Redux & redirect
       dispatch(setCredentials(data));
       toast.success("Login successful");
       navigate("/");
 
     } catch (error) {
-      console.error("OAuth error:", error);
+      console.error("❌ OAuth error:", error);
       toast.error("Google login failed. Please try again.");
     }
   };
