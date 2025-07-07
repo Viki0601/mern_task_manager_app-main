@@ -17,13 +17,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(SECRET));
 
-// ✅ CORS Setup
 app.use(
   cors({
-    origin: FRONTEND_BASE_URL,
-    credentials: true,
+    origin: ["http://localhost:5173", "https://mern-task-manager-app-main.onrender.com"], // your frontend URLs
+    credentials: true, // ✅ allow cookies and headers like Authorization
   })
 );
+
+// // ✅ CORS Setup
+// app.use(
+//   cors({
+//     origin: FRONTEND_BASE_URL,
+//     credentials: true,
+//   })
+// );
 
 if (!process.env.FRONTEND_BASE_URL) {
   console.warn(
