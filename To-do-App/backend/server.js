@@ -39,9 +39,13 @@ app.use("/api/v1/tasks", taskRoutes);
 app.get("/", (req, res) => {
   res.json({ message: "Hello, Welcome to Vooshfoods" });
 });
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
 // ✅ Start Server
 app.listen(PORT, async () => {
   await connectDB();
   console.log(`🚀 Server started on http://localhost:${PORT}`);
+
 });
