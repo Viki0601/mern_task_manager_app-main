@@ -23,4 +23,3 @@ This application is deployed on Render and is accessible via the following link:
 
 The tech stack includes React, Axios, and React Query for the frontend, and Node.js, Express, and MongoDB (with Mongoose) for the backend. Firebase and JWT are used for authentication. The application follows a clean and modular structure to support future scalability and enhancements.
 
-Let me know if you'd like a similar description for your other projects or need this formatted for LinkedIn or your resume!
