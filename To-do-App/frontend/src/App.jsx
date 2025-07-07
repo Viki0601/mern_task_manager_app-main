@@ -4,7 +4,7 @@ import Header from "./components/Header";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "./redux/features/auth/authSlice";
+import { setCredentials, logout } from "./redux/features/auth/authSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -24,6 +24,14 @@ function App() {
     };
 
     window.addEventListener("message", handleOAuthMessage);
+
+    // ✅ Check for expired session
+    const expirationTime = localStorage.getItem("expirationTime");
+    if (expirationTime && Date.now() > Number(expirationTime)) {
+      localStorage.clear();
+      dispatch(setCredentials(null));
+      dispatch(logout());
+    }
 
     return () => window.removeEventListener("message", handleOAuthMessage);
   }, [dispatch]);
