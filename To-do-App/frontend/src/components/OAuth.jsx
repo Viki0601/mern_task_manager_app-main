@@ -28,13 +28,13 @@ const OAuth = ({ title }) => {
         return;
       }
 
-      // Step 2: Send user info to your backend for auth
+      // Step 2: Send user info to your backend
       const res = await fetch(`${baseUrl}/api/v1/user/google`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // ✅ important for sending cookies
+        credentials: "include", // ✅ cookies for session
         body: JSON.stringify({
           name: user.displayName,
           email: user.email,
@@ -42,27 +42,27 @@ const OAuth = ({ title }) => {
         }),
       });
 
-      // Step 3: Safely handle backend response
       let data;
+      const text = await res.text(); // <-- avoid direct .json()
       try {
-        data = await res.json();
+        data = text ? JSON.parse(text) : {};
       } catch (err) {
-        console.error("Invalid JSON from backend:", err);
-        toast.error("Server error: invalid response");
+        console.error("❌ Invalid JSON from backend:", err);
+        toast.error("Server error: Invalid response format");
         return;
       }
 
       if (!res.ok) {
-        toast.error(data?.message || "Backend authentication failed");
+        toast.error(data?.message || "Google login failed");
         return;
       }
 
-      // Step 4: Save user in Redux & localStorage
+      // Step 3: Update Redux & redirect
       dispatch(setCredentials(data));
       toast.success("Login successful");
       navigate("/");
     } catch (error) {
-      console.error("OAuth error:", error);
+      console.error("❌ OAuth error:", error);
       toast.error("Google login failed. Please try again.");
     }
   };
