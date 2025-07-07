@@ -1,4 +1,7 @@
 import express from "express";
+import { google as googleLogin } from "../controllers/userController.js";
+
+
 import {
   signupUser,
   loginUser,
@@ -16,5 +19,7 @@ router.post("/logout", logoutUser);
 router.post("/google", google);
 router.post("/forgot-password", forgotPassword); 
 router.post("/reset-password", resetPassword); 
+router.post("/google", googleLogin);
+
 
 export default router;
