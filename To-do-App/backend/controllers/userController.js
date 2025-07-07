@@ -84,7 +84,7 @@ const google = asyncHandler(async (req, res) => {
   const { name, email, googlePhotoUrl } = req.body;
 
   if (!name || !email) {
-    return res.status(400).json({ message: "Missing required fields" });
+    return res.status(400).json({ message: "Missing name or email" }); // ✅ return JSON error
   }
 
   try {
@@ -118,13 +118,12 @@ const google = asyncHandler(async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000,
         signed: true,
       })
-      .json(userData); // ✅ Always respond with JSON
+      .json(userData); // ✅ Always return JSON
   } catch (error) {
-    console.error("Google login failed:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.error("Google login error:", error.message);
+    return res.status(500).json({ message: "Internal Server Error" }); // ✅ send fallback error
   }
 });
-
 
 
 const forgotPassword = asyncHandler(async (req, res) => {
