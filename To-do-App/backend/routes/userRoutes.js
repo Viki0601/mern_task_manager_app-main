@@ -16,5 +16,6 @@ router.post("/logout", logoutUser);
 router.post("/google", google);
 router.post("/forgot-password", forgotPassword); 
 router.post("/reset-password", resetPassword); 
+// router.post("/google", googleLogin); // ✅ This handles POST /api/v1/user/google
 
 export default router;

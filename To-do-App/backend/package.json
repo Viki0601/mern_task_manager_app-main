@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon ./server.js",
-     "dev": "nodemon server.js"
-},
+    "dev": "nodemon server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
