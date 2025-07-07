@@ -35,14 +35,19 @@ function Login() {
 
   const login = async (formData) => {
     try {
-      const { data } = await axios.post(`${baseURL}/api/v1/user/login`, formData);
+      const { data } = await axios.post(`${baseURL}/api/v1/user/login`, formData, {
+        withCredentials: true, // ✅ important for cookie-based auth
+      });
+
       dispatch(setCredentials(data));
       toast.success("Login successful");
-      navigate("/");
+      navigate("/"); // 🔁 redirect after successful login
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "An error occurred during login"
-      );
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "An error occurred during login";
+      toast.error(message);
     }
   };
 
@@ -76,7 +81,6 @@ function Login() {
                     {errors.password.message}
                   </p>
                 )}
-                {/* ✅ Forgot Password link */}
                 <p className="text-right text-sm text-blue-600 hover:underline mt-1">
                   <Link to="/forgot-password">Forgot Password?</Link>
                 </p>
@@ -91,7 +95,6 @@ function Login() {
               </Button>
             </div>
 
-            {/* ✅ Google login support */}
             <OAuth title="Login with Google" />
 
             <p className="text-center text-black my-4">
@@ -108,4 +111,3 @@ function Login() {
 }
 
 export default Login;
-
