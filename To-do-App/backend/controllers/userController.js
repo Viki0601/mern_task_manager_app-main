@@ -83,66 +83,48 @@ const logoutUser = asyncHandler(async (req, res) => {
 const google = asyncHandler(async (req, res) => {
   const { name, email, googlePhotoUrl } = req.body;
 
+  if (!name || !email) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
   try {
-    const user = await userModel.findOne({ email });
+    let user = await userModel.findOne({ email });
 
-    if (user) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
-      });
+    if (!user) {
+      const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(generatedPassword, 10);
 
-      const { password, ...rest } = user._doc;
-      return res
-        .status(200)
-        .cookie("jwt", token, {
-          httpOnly: true,
-          domain,
-          signed: true,
-          path: "/",
-          secure: true,
-          sameSite: "None",
-          maxAge: 1 * 24 * 60 * 60 * 1000,
-        })
-        .json(rest); // ✅ always send JSON
-    } else {
-      const generatedPassword =
-        Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-      const hashedPassword = bcrypt.hashSync(generatedPassword, 10);
-
-      const newUser = new userModel({
+      user = await userModel.create({
         firstname: name,
         lastname: name,
         email,
         profilePicture: googlePhotoUrl,
         password: hashedPassword,
       });
-
-      await newUser.save();
-
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
-      });
-
-      const { password, ...rest } = newUser._doc;
-
-      return res
-        .status(200)
-        .cookie("jwt", token, {
-          httpOnly: true,
-          domain,
-          signed: true,
-          path: "/",
-          secure: true,
-          sameSite: "None",
-          maxAge: 1 * 24 * 60 * 60 * 1000,
-        })
-        .json(rest); // ✅ always send JSON
     }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    const { password, ...userData } = user._doc;
+
+    res
+      .status(200)
+      .cookie("jwt", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        maxAge: 24 * 60 * 60 * 1000,
+        signed: true,
+      })
+      .json(userData); // ✅ Always respond with JSON
   } catch (error) {
-    console.error("Google login error:", error);
-    return res.status(500).json({ message: "Google login failed" });
+    console.error("Google login failed:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 
 
 const forgotPassword = asyncHandler(async (req, res) => {
