@@ -33,7 +33,9 @@ function App() {
       dispatch(logout());
     }
 
-    return () => window.removeEventListener("message", handleOAuthMessage);
+    return () => {
+      window.removeEventListener("message", handleOAuthMessage);
+    };
   }, [dispatch]);
 
   return (
