@@ -17,16 +17,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(SECRET));
 
 // CORS middleware
+const allowedOrigin = FRONTEND_BASE_URL;
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://mern-task-manager-app-main.onrender.com",
-      FRONTEND_BASE_URL
-    ],
+    origin: allowedOrigin,
     credentials: true,
   })
 );
+console.log(`[CORS] Allowing origin: ${allowedOrigin}`);
 
 // Warn if env var is not set
 if (!process.env.FRONTEND_BASE_URL) {
