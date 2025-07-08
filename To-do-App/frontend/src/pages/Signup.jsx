@@ -89,7 +89,7 @@ function Signup() {
                 )}
               </div>
               <div>
-                <Input placeholder="Email" type="email" {...register("email")} />
+                <Input placeholder="Email" type="email" autoComplete="email" {...register("email")} />
                 {errors.email && (
                   <p className="text-red-500">{errors.email.message}</p>
                 )}
@@ -98,6 +98,7 @@ function Signup() {
                 <Input
                   type="password"
                   placeholder="Password"
+                  autoComplete="new-password"
                   {...register("password")}
                 />
                 {errors.password && (
@@ -108,6 +109,7 @@ function Signup() {
                 <Input
                   type="password"
                   placeholder="Confirm Password"
+                  autoComplete="new-password"
                   {...register("confirmPassword")}
                 />
                 {errors.confirmPassword && (

@@ -68,6 +68,7 @@ function Login() {
                 <Input
                   placeholder="Email"
                   type="email"
+                  autoComplete="email"
                   {...register("email")}
                 />
                 {errors.email && (
@@ -80,6 +81,7 @@ function Login() {
                 <Input
                   type="password"
                   placeholder="Password"
+                  autoComplete="current-password"
                   {...register("password")}
                 />
                 {errors.password && (
