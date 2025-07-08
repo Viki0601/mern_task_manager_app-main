@@ -39,12 +39,18 @@ function Login() {
     setBackendError("");
     try {
       const { data } = await axios.post(`${baseURL}/api/v1/user/login`, formData, {
-        withCredentials: true, // ✅ important for cookie-based auth
+        withCredentials: true,
       });
-
-      dispatch(setCredentials(data));
-      toast.success("Login successful");
-      navigate("/"); // 🔁 redirect after successful login
+      console.log("Backend login response:", data);
+      // Validate user object
+      if (data && (data.email || data._id || data.id)) {
+        dispatch(setCredentials(data));
+        toast.success("Login successful");
+        navigate("/");
+      } else {
+        setBackendError("Login failed: Invalid user data returned from server.");
+        toast.error("Login failed: Invalid user data returned from server.");
+      }
     } catch (error) {
       console.error("Login error:", error, error.response);
       const message =

@@ -51,12 +51,18 @@ function Signup() {
     setBackendError("");
     try {
       const { data } = await axios.post(`${baseURL}/api/v1/user/signup`, formData, {
-        withCredentials: true, // ✅ needed for sending cookies in deployment
+        withCredentials: true,
       });
-
-      dispatch(setCredentials(data));
-      toast.success("Signup successful");
-      navigate("/"); // ✅ redirect after signup
+      console.log("Backend signup response:", data);
+      // Validate user object
+      if (data && (data.email || data._id || data.id)) {
+        dispatch(setCredentials(data));
+        toast.success("Signup successful");
+        navigate("/");
+      } else {
+        setBackendError("Signup failed: Invalid user data returned from server.");
+        toast.error("Signup failed: Invalid user data returned from server.");
+      }
     } catch (error) {
       console.error("Signup error:", error, error.response);
       const message =
