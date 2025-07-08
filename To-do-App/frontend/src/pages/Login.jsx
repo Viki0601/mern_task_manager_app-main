@@ -9,6 +9,7 @@ import { setCredentials } from "../redux/features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import OAuth from "../components/OAuth"; // ✅ Google login component added
+import { useState } from "react";
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
@@ -20,6 +21,7 @@ const loginSchema = z.object({
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [backendError, setBackendError] = useState("");
 
   const {
     register,
@@ -34,6 +36,7 @@ function Login() {
   });
 
   const login = async (formData) => {
+    setBackendError("");
     try {
       const { data } = await axios.post(`${baseURL}/api/v1/user/login`, formData, {
         withCredentials: true, // ✅ important for cookie-based auth
@@ -43,10 +46,13 @@ function Login() {
       toast.success("Login successful");
       navigate("/"); // 🔁 redirect after successful login
     } catch (error) {
+      console.error("Login error:", error, error.response);
       const message =
         error.response?.data?.message ||
+        error.response?.data ||
         error.message ||
         "An error occurred during login";
+      setBackendError(message);
       toast.error(message);
     }
   };
@@ -93,12 +99,15 @@ function Login() {
               >
                 {isSubmitting ? "Logging in..." : "Login"}
               </Button>
+              {backendError && (
+                <p className="text-red-500 text-center my-2">{backendError}</p>
+              )}
             </div>
 
             <OAuth title="Login with Google" />
 
             <p className="text-center text-black my-4">
-              Don’t have an account?{" "}
+              Don't have an account?{" "}
               <Link to="/signup" className="text-blue-600 hover:underline">
                 Sign up
               </Link>

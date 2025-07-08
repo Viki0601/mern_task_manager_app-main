@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { setCredentials } from "../redux/features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import axios from "axios";
+import { useState } from "react";
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
@@ -29,6 +30,7 @@ const signupSchema = z
 function Signup() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [backendError, setBackendError] = useState("");
 
   const {
     register,
@@ -46,6 +48,7 @@ function Signup() {
   });
 
   const signup = async (formData) => {
+    setBackendError("");
     try {
       const { data } = await axios.post(`${baseURL}/api/v1/user/signup`, formData, {
         withCredentials: true, // ✅ needed for sending cookies in deployment
@@ -55,10 +58,13 @@ function Signup() {
       toast.success("Signup successful");
       navigate("/"); // ✅ redirect after signup
     } catch (error) {
+      console.error("Signup error:", error, error.response);
       const message =
         error.response?.data?.message ||
+        error.response?.data ||
         error.message ||
         "An error occurred during signup";
+      setBackendError(message);
       toast.error(message);
     }
   };
@@ -110,6 +116,9 @@ function Signup() {
                   </p>
                 )}
               </div>
+              {backendError && (
+                <p className="text-red-500 text-center my-2">{backendError}</p>
+              )}
               <Button
                 textColor="text-white"
                 type="submit"
